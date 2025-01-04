@@ -1,0 +1,10 @@
+2025-01-04 17:07:22,642 - INFO - Starting node tests...
+2025-01-04 17:07:22,643 - INFO - Ensuring output directory exists: test_outputs
+2025-01-04 17:07:22,644 - INFO - Found 2 images in test assets directory
+2025-01-04 17:07:22,644 - INFO - 
+Testing image pair: test1
+2025-01-04 17:07:22,703 - INFO - Processing images through node...
+2025-01-04 17:07:40,534 - WARNING - Mask contains values other than 0 and 255
+2025-01-04 17:07:40,536 - INFO - Mask validation passed
+2025-01-04 17:07:40,558 - INFO - Saved output to: test_outputs/test1_output__20250104_170740.png
+2025-01-04 17:07:40,562 - INFO - Testing completed!
