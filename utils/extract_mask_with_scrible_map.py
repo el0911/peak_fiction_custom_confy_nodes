@@ -6,7 +6,7 @@ from sklearn.metrics import silhouette_score
 import rembg
 
 class ExtractMaskFromScribbleMap:
-    def detect_shapes_bbox(image, padding=10):
+    def detect_shapes_bbox(image, padding=20):
         import cv2
         import numpy as np
         from sklearn.cluster import KMeans
@@ -145,7 +145,6 @@ class ExtractMaskFromScribbleMap:
             
             # Print final mask to inspect if any updates were made
             print("Final mask after processing:")
-            print(final_mask)
             return (final_mask)
         except Exception as e:
             print(f"!!! Exception during processing: {e} !!!")
