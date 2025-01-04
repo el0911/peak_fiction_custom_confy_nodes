@@ -1,4 +1,3 @@
-# utils/extract_mask_with_scrible_map.py
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
