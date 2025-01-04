@@ -42,6 +42,7 @@ class Extract_mask_with_scrible_map:
     
     def get_map(self, original_image, scribble_image):
         try:
+            original_image_ = original_image
             # Convert tensors to NumPy arrays
             original_image = np.clip(255.0 * original_image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8)
             scribble_image = np.clip(255.0 * scribble_image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8)
@@ -73,8 +74,8 @@ class Extract_mask_with_scrible_map:
             #     logging.warning("No mask found, returning original image.")
             #     return original_image  # Return original image if no mask is found
             
-            # logging.debug("Mask successfully created.")
-            return (scribble_image,)
+            logging.debug("Mask successfully created.")
+            return (original_image_,)
         
         except Exception as e:
             # Log the exception details
