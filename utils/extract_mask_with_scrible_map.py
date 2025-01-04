@@ -7,7 +7,7 @@ from sklearn.metrics import silhouette_score
 import rembg
 
 class ExtractMaskFromScribbleMap:
-    def detect_shapes_bbox(image, padding=20):
+    def detect_shapes_bbox(image, padding=15):
         import cv2
         import numpy as np
         from sklearn.cluster import KMeans
