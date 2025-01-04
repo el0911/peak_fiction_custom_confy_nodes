@@ -38,9 +38,9 @@ class Extract_mask_with_scrible_map:
     def get_map(self, original_image, scribble_image):
         # Convert tensors to NumPy arrays
         # if not isinstance(original_image, np.ndarray):
-        original_image_ = tensor_to_numpy(original_image)
+        original_image_ = np.clip(255.0 * original_image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8)
         # if not isinstance(scribble_image, np.ndarray):
-        scribble_image_ = tensor_to_numpy(scribble_image)
+        scribble_image_ = np.clip(255.0 * scribble_image.cpu().numpy().squeeze(), 0, 255).astype(np.uint8)
 
         # # Debugging: Check the converted array shapes
         # print("Original Image Shape:", original_image.shape)
