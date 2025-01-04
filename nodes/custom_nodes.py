@@ -1,6 +1,7 @@
 from ..utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
 import numpy as np
 import cv2
+import logging
 import torch  # If using PyTorch
 # import tensorflow as tf  # Uncomment if using TensorFlow
 
