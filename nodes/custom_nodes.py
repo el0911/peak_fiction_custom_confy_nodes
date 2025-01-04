@@ -74,7 +74,7 @@ class Extract_mask_with_scrible_map:
             #     logging.warning("No mask found, returning original image.")
             #     return original_image  # Return original image if no mask is found
             
-            logging.debug("Mask successfully created.")
+            print("Mask successfully created.")
             return (original_image_,)
         
         except Exception as e:
