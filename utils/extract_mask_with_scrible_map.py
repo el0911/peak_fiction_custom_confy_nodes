@@ -146,7 +146,7 @@ class ExtractMaskFromScribbleMap:
             # Print final mask to inspect if any updates were made
             print("Final mask after processing:")
             print(final_mask)
-            return final_mask
+            return (final_mask)
         except Exception as e:
             print(f"!!! Exception during processing: {e} !!!")
             return np.zeros((height, width), dtype=np.uint8)
