@@ -136,10 +136,10 @@ class ExtractMaskFromScribbleMap:
                 if extracted_with_alpha.shape[2] >= 4:
                     alpha_channel = extracted_with_alpha[:, :, 3]
                     print(f"Alpha channel extracted, max value: {np.max(alpha_channel)}")
-                    final_mask[y:y+h, x:x+w] = np.maximum(
-                        final_mask[y:y+h, x:x+w],
-                        alpha_channel
-                    )
+                    # final_mask[y:y+h, x:x+w] = np.maximum(
+                    #     final_mask[y:y+h, x:x+w],
+                    #     alpha_channel
+                    # )
                 else:
                     print("Warning: No alpha channel found in extracted_with_alpha.")
             
