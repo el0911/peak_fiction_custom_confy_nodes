@@ -66,15 +66,15 @@ class Extract_mask_with_scrible_map:
                 logging.debug("Converted scribble image from RGB to BGR.")
 
             # Optionally use ExtractMaskFromScribbleMap
-            (mask) = ExtractMaskFromScribbleMap.get_map(original_image, scribble_image)
+            ExtractMaskFromScribbleMap.get_map(original_image, scribble_image)
             
             # Check if mask is returned
-            if mask is None:
-                logging.warning("No mask found, returning original image.")
-                return original_image  # Return original image if no mask is found
+            # if mask is None:
+            #     logging.warning("No mask found, returning original image.")
+            #     return original_image  # Return original image if no mask is found
             
-            logging.debug("Mask successfully created.")
-            return (mask,)
+            # logging.debug("Mask successfully created.")
+            return (scribble_image,)
         
         except Exception as e:
             # Log the exception details
