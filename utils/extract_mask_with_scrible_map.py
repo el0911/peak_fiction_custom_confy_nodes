@@ -6,16 +6,34 @@ from sklearn.metrics import silhouette_score
 import rembg
 
 class ExtractMaskFromScribbleMap:
-    @staticmethod
     def detect_shapes_bbox(image, padding=10):
-        # Implementation from your original code
+        import cv2
+        import numpy as np
+        from sklearn.cluster import KMeans
+        from sklearn.metrics import silhouette_score
+
+        # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Apply Gaussian Blur
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+        # Thresholding
         _, thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY_INV)
+
+        # Dilate the image
         kernel = np.ones((3, 3), np.uint8)
         thresh = cv2.dilate(thresh, kernel, iterations=1)
+
+        # Ensure dtype is uint8
+        thresh = np.uint8(thresh)
+
+        # Debugging: Check thresh properties
+        print(f"thresh dtype: {thresh.dtype}, shape: {thresh.shape}")
+
+        # Find contours
         contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
+
         # Get bounding boxes and center coordinates
         bounding_boxes = []
         centers = []
@@ -27,12 +45,11 @@ class ExtractMaskFromScribbleMap:
                 center = (x + w / 2, y + h / 2)
                 centers.append(center)
 
-        x = np.array(centers)
-        
         if len(centers) < 2:
             return bounding_boxes
 
         # KMeans clustering
+        x = np.array(centers)
         best_score = -1
         best_k = 2
         for i in range(2, min(10, len(centers) + 1)):
@@ -65,6 +82,7 @@ class ExtractMaskFromScribbleMap:
             cluster_bboxes.append((min_x, min_y, max_x - min_x, max_y - min_y))
 
         return cluster_bboxes
+
 
     @staticmethod
     def removeBackground(input_image):
