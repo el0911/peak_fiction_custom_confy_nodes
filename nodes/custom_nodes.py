@@ -42,4 +42,5 @@ class Extract_mask_with_scrible_map:
             scribble_image = cv2.cvtColor(scribble_image, cv2.COLOR_RGB2BGR)
 
         mask = ExtractMaskFromScribbleMap.get_map(original_image, scribble_image)
+        print(mask)
         return (mask,)

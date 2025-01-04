@@ -109,7 +109,7 @@ class ExtractMaskFromScribbleMap:
             boxes = ExtractMaskFromScribbleMap.detect_shapes_bbox(scribble_image)
             
       
-            
+            print(f" found {len(boxes)} items")
             # Initialize mask
             final_mask = np.zeros((height, width), dtype=np.uint8)
             
