@@ -40,7 +40,9 @@ class Extract_mask_with_scrible_map:
         #     scribble_image = cv2.cvtColor(scribble_image, cv2.COLOR_RGBA2BGR)
         # elif scribble_image.shape[-1] == 3:  # RGB
         #     scribble_image = cv2.cvtColor(scribble_image, cv2.COLOR_RGB2BGR)
-
+        print(type(original_image))
+        # print(mask.shape)
+        # print(mask.dtype)
         mask = ExtractMaskFromScribbleMap.get_map(original_image, scribble_image)
         # print(mask)
         return (original_image,scribble_image,)
