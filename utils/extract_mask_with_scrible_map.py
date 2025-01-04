@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
@@ -92,8 +93,7 @@ class ExtractMaskFromScribbleMap:
         output_bgra = cv2.cvtColor(output_array, cv2.COLOR_RGBA2BGRA)
         return output_bgra
 
-    import numpy as np
-    import torch
+ 
 
     def get_map(original_image, scribble_image):
         """
