@@ -76,8 +76,8 @@ class Extract_mask_with_scrible_map:
             # If you need to ensure the tensor has the correct data type (e.g., float32), you can specify that as well
             mask_tensor = mask_tensor.float()
 
-            print(type(original_image_))
-            print(type(mask_tensor))
+            print(original_image_)
+            print(mask_tensor)
 
 
             # Check if mask is returned
