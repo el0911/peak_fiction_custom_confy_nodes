@@ -73,10 +73,10 @@ class Extract_mask_with_scrible_map:
                 return original_image  # Return original image if no mask is found
             
             logging.debug("Mask successfully created.")
-            return mask
+            return (mask,)
         
         except Exception as e:
             # Log the exception details
             logging.error(f"An error occurred while processing images: {str(e)}")
             # In case of an error, return the original image
-            return original_image
+            return (original_image,)
