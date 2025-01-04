@@ -118,14 +118,14 @@ class ExtractMaskFromScribbleMap:
                 x, y, w, h = bbox
                 roi = original_image[y:y+h, x:x+w]
                 
-                # # Extract region and remove background
-                # extracted_with_alpha = ExtractMaskFromScribbleMap.removeBackground(roi)
+                # Extract region and remove background
+                extracted_with_alpha = ExtractMaskFromScribbleMap.removeBackground(roi)
                 
-                # # Add the alpha channel to the mask
-                # final_mask[y:y+h, x:x+w] = np.maximum(
-                #     final_mask[y:y+h, x:x+w],
-                #     extracted_with_alpha[:, :, 3]
-                # )
+                # Add the alpha channel to the mask
+                final_mask[y:y+h, x:x+w] = np.maximum(
+                    final_mask[y:y+h, x:x+w],
+                    extracted_with_alpha[:, :, 3]
+                )
             
             return final_mask
 

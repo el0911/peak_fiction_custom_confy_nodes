@@ -32,7 +32,7 @@ class Extract_mask_with_scrible_map:
             },
         }
 
-    RETURN_TYPES = ("MASK",)
+    RETURN_TYPES = ("IMAGE",)
     FUNCTION = "get_map"
     CATEGORY = "peakfiction/custom"
 
