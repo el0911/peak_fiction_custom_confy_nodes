@@ -126,7 +126,8 @@ class ExtractMaskFromScribbleMap:
                     final_mask[y:y+h, x:x+w],
                     extracted_with_alpha[:, :, 3]
                 )
-            
+            print('gotten mask ')
+            print(final_mask)
             return final_mask
 
         except Exception as e:
