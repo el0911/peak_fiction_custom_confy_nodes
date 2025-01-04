@@ -19,7 +19,7 @@ class Extract_mask_with_scrible_map:
             },
         }
 
-    RETURN_TYPES = ("IMAGE",)
+    RETURN_TYPES = ("IMAGE","IMAGE",)
     FUNCTION = "get_map"
     CATEGORY = "peakfiction/custom"
 
@@ -43,4 +43,4 @@ class Extract_mask_with_scrible_map:
 
         mask = ExtractMaskFromScribbleMap.get_map(original_image, scribble_image)
         print(mask)
-        return (mask,)
+        return (original_image,scribble_image,)
