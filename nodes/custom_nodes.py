@@ -86,7 +86,7 @@ class Extract_mask_with_scrible_map:
             #     return original_image  # Return original image if no mask is found
             
             print("Mask successfully created.")
-            return (original_image_,)
+            return (mask_tensor,)
         
         except Exception as e:
             # Log the exception details
