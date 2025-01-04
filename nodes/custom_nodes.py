@@ -6,9 +6,10 @@ import torch  # If using PyTorch
 
 def tensor_to_numpy(tensor):
     if isinstance(tensor, torch.Tensor):
-        return tensor.permute(1, 2, 0).cpu().numpy()  # PyTorch (CHW to HWC)
-    # elif isinstance(tensor, tf.Tensor):  # TensorFlow (optional)
-    #     return tensor.numpy()
+        # If tensor has a batch dimension, squeeze it
+        if tensor.dim() == 4:  # Shape: (B, C, H, W)
+            tensor = tensor.squeeze(0)  # Remove batch dimension if B == 1
+        return tensor.permute(1, 2, 0).cpu().numpy()  # Convert (C, H, W) to (H, W, C)
     else:
         raise TypeError(f"Unsupported tensor type: {type(tensor)}")
 
@@ -35,7 +36,7 @@ class Extract_mask_with_scrible_map:
     CATEGORY = "peakfiction/custom"
 
     def get_map(self, original_image, scribble_image):
-         # Convert tensors to NumPy arrays
+        # Convert tensors to NumPy arrays
         if not isinstance(original_image, np.ndarray):
             original_image = tensor_to_numpy(original_image)
         if not isinstance(scribble_image, np.ndarray):
