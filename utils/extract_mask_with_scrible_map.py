@@ -92,7 +92,6 @@ class ExtractMaskFromScribbleMap:
         output_bgra = cv2.cvtColor(output_array, cv2.COLOR_RGBA2BGRA)
         return output_bgra
 
-    @staticmethod
     def get_map(original_image, scribble_image):
         """
         Extracts masks using the main function logic
@@ -102,34 +101,52 @@ class ExtractMaskFromScribbleMap:
         Returns:
             Binary mask
         """
-              # Get image dimensions
         height, width = original_image.shape[:2]
+        
         try:
             # Detect bounding boxes from scribble image
             boxes = ExtractMaskFromScribbleMap.detect_shapes_bbox(scribble_image)
             
-      
-            print(f" found {len(boxes)} items")
+            if not boxes:
+                print("No bounding boxes found.")
+                return np.zeros((height, width), dtype=np.uint8)
+
+            print(f"Found {len(boxes)} bounding boxes.")
+            
             # Initialize mask
             final_mask = np.zeros((height, width), dtype=np.uint8)
             
             # Process each bounding box
             for i, bbox in enumerate(boxes):
                 x, y, w, h = bbox
-                roi = original_image[y:y+h, x:x+w]
+                print(f"Processing bounding box {i+1}/{len(boxes)}: {bbox}")
+                
+                # Ensure the bounding box is within image bounds
+                if x + w <= width and y + h <= height:
+                    roi = original_image[y:y+h, x:x+w]
+                else:
+                    print(f"Warning: Bounding box {bbox} is out of image bounds.")
+                    continue  # Skip this iteration
                 
                 # Extract region and remove background
                 extracted_with_alpha = ExtractMaskFromScribbleMap.removeBackground(roi)
+                print(f"extracted_with_alpha shape: {extracted_with_alpha.shape}")
                 
-                # Add the alpha channel to the mask
-                final_mask[y:y+h, x:x+w] = np.maximum(
-                    final_mask[y:y+h, x:x+w],
-                    extracted_with_alpha[:, :, 3]
-                )
-            print('gotten mask ')
+                # Check if extracted_with_alpha has 4 channels (RGBA)
+                if extracted_with_alpha.shape[2] >= 4:
+                    alpha_channel = extracted_with_alpha[:, :, 3]
+                    print(f"Alpha channel extracted, max value: {np.max(alpha_channel)}")
+                    final_mask[y:y+h, x:x+w] = np.maximum(
+                        final_mask[y:y+h, x:x+w],
+                        alpha_channel
+                    )
+                else:
+                    print("Warning: No alpha channel found in extracted_with_alpha.")
+            
+            # Print final mask to inspect if any updates were made
+            print("Final mask after processing:")
             print(final_mask)
             return final_mask
-
         except Exception as e:
-            print(f"Error in get_map: {str(e)}")
+            print(f"!!! Exception during processing: {e} !!!")
             return np.zeros((height, width), dtype=np.uint8)
