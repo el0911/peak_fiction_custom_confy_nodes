@@ -92,14 +92,19 @@ class ExtractMaskFromScribbleMap:
         output_bgra = cv2.cvtColor(output_array, cv2.COLOR_RGBA2BGRA)
         return output_bgra
 
+    import numpy as np
+    import torch
+
     def get_map(original_image, scribble_image):
         """
-        Extracts masks using the main function logic
+        Extracts masks using the main function logic and returns a tensor
+        
         Args:
             original_image: The source/reference image
             scribble_image: The scribble map image
+        
         Returns:
-            Binary mask
+            Binary mask as a torch tensor of shape (1, H, W)
         """
         height, width = original_image.shape[:2]
         
@@ -109,8 +114,8 @@ class ExtractMaskFromScribbleMap:
             
             if not boxes:
                 print("No bounding boxes found.")
-                return np.zeros((height, width), dtype=np.uint8)
-
+                return torch.zeros((1, height, width), dtype=torch.float32)
+            
             print(f"Found {len(boxes)} bounding boxes.")
             
             # Initialize mask
@@ -143,9 +148,13 @@ class ExtractMaskFromScribbleMap:
                 else:
                     print("Warning: No alpha channel found in extracted_with_alpha.")
             
-            # Print final mask to inspect if any updates were made
-            print("Final mask after processing:")
-            return final_mask
+            # Convert numpy array to torch tensor
+            # Add batch dimension and ensure float32 dtype
+            tensor_mask = torch.from_numpy(final_mask).float().unsqueeze(0)
+            
+            print("Final mask converted to tensor.")
+            return tensor_mask
+
         except Exception as e:
-            print(f"!!! Exception during processing: {e} !!!")
-            return np.zeros((height, width), dtype=np.uint8)
+            print(f"Error processing image: {str(e)}")
+            return torch.zeros((1, height, width), dtype=torch.float32)
