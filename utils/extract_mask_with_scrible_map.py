@@ -84,12 +84,13 @@ class ExtractMaskFromScribbleMap:
         Returns:
             Binary mask
         """
+              # Get image dimensions
+        height, width = original_image.shape[:2]
         try:
             # Detect bounding boxes from scribble image
             boxes = ExtractMaskFromScribbleMap.detect_shapes_bbox(scribble_image)
             
-            # Get image dimensions
-            height, width = original_image.shape[:2]
+      
             
             # Initialize mask
             final_mask = np.zeros((height, width), dtype=np.uint8)
