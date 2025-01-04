@@ -68,7 +68,9 @@ class Extract_mask_with_scrible_map:
 
             # Optionally use ExtractMaskFromScribbleMap
             mask = ExtractMaskFromScribbleMap.get_map(original_image, scribble_image)
-            print(mask)
+            print(type(original_image_))
+            print(type(mask))
+
             # Check if mask is returned
             # if mask is None:
             #     logging.warning("No mask found, returning original image.")
