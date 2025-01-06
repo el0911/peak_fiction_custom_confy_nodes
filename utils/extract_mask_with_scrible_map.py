@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import rembg
-
+import torch
 class ExtractMaskFromScribbleMap:
     @staticmethod
     def detect_shapes_bbox(image, padding=10):
@@ -108,7 +108,9 @@ class ExtractMaskFromScribbleMap:
                     extracted_with_alpha[:, :, 3]
                 )
             
-            return final_mask
+            tensor_mask = torch.from_numpy(final_mask).float().unsqueeze(0)
+            
+            return tensor_mask
 
         except Exception as e:
             print(f"Error in get_map: {str(e)}")
