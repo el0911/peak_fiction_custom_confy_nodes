@@ -1,4 +1,4 @@
-from nodes.custom_nodes import Extract_mask_with_scrible_map
+from .nodes.custom_nodes import Extract_mask_with_scrible_map
 
 
 NODE_CLASS_MAPPINGS = {
