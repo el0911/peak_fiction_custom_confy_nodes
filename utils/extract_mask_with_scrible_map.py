@@ -108,10 +108,37 @@ class ExtractMaskFromScribbleMap:
                     extracted_with_alpha[:, :, 3]
                 )
             
-            tensor_mask = torch.from_numpy(final_mask).float().unsqueeze(0)
+            tensor_mask = torch.from_numpy(final_mask).float().unsqueeze(0) / 255.0
+            # save_tensor_mask(tensor_mask, 'output_mask.png')
+
+
             
             return tensor_mask
 
         except Exception as e:
             print(f"Error in get_map: {str(e)}")
             return np.zeros((height, width), dtype=np.uint8)
+
+
+import numpy as np
+import torch
+from PIL import Image
+
+def save_tensor_mask(tensor_mask, output_path):
+    """
+    Save the tensor mask as an image.
+
+    Parameters:
+    - tensor_mask: A PyTorch tensor representing the mask.
+    - output_path: Path to save the output image.
+    """
+    # Ensure the tensor is in the range [0, 255] for saving as an image
+    mask = tensor_mask.squeeze(0).cpu().numpy() * 255  # Squeeze the batch dimension, convert to numpy and scale to [0, 255]
+    
+    # Clip to make sure all values are in the valid range [0, 255]
+    mask = np.clip(mask, 0, 255).astype(np.uint8)
+    
+    # Convert the mask to an image and save it
+    image = Image.fromarray(mask)
+    image.save(output_path)
+    print(f"Mask saved to {output_path}")
