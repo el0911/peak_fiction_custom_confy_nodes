@@ -1,6 +1,6 @@
 numpy
 opencv-python
 scikit-learn
-rembg
+rembg[gpu]
 opencv-python
 matplotlib
