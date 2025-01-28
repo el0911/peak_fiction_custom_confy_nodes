@@ -8,7 +8,6 @@ import torch
 class ExtractMaskFromScribbleMap:
     @staticmethod
     def detect_shapes_bbox(image, padding=10):
-        # Implementation from your original code
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         _, thresh = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY_INV)
@@ -21,58 +20,62 @@ class ExtractMaskFromScribbleMap:
         centers = []
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area > 50:
+            if area > 50:  # Filter small contours
                 x, y, w, h = cv2.boundingRect(contour)
                 bounding_boxes.append((x, y, w, h))
                 center = (x + w / 2, y + h / 2)
                 centers.append(center)
 
-        x = np.array(centers)
-        
         if len(centers) < 2:
             return bounding_boxes
 
-        # KMeans clustering
-        best_score = -1
-        best_k = 2
-        for i in range(2, min(10, len(centers) + 1)):
-            kmeans = KMeans(n_clusters=i, random_state=10)
+        x = np.array(centers)
+        
+        # Modified KMeans clustering with error handling
+        try:
+            # Limit number of clusters to number of samples - 1
+            max_clusters = min(8, len(centers) - 1)
+            best_score = -1
+            best_k = 2
+            
+            for i in range(2, max_clusters + 1):
+                kmeans = KMeans(n_clusters=i, random_state=10)
+                labels = kmeans.fit_predict(x)
+                
+                # Check if we have at least 2 samples per cluster
+                unique_labels, counts = np.unique(labels, return_counts=True)
+                if np.all(counts >= 2):  # Only calculate score if all clusters have at least 2 samples
+                    silhouette_avg = silhouette_score(x, labels)
+                    if silhouette_avg > best_score:
+                        best_score = silhouette_avg
+                        best_k = i
+
+            kmeans = KMeans(n_clusters=best_k, random_state=10)
             kmeans.fit(x)
-            silhouette_avg = silhouette_score(x, kmeans.labels_)
-            if silhouette_avg > best_score:
-                best_score = silhouette_avg
-                best_k = i
 
-        kmeans = KMeans(n_clusters=best_k, random_state=10)
-        kmeans.fit(x)
+            clustered_bboxes = {i: [] for i in range(best_k)}
+            for idx, label in enumerate(kmeans.labels_):
+                clustered_bboxes[label].append(bounding_boxes[idx])
 
-        clustered_bboxes = {i: [] for i in range(best_k)}
-        for idx, label in enumerate(kmeans.labels_):
-            clustered_bboxes[label].append(bounding_boxes[idx])
+            cluster_bboxes = []
+            for cluster_idx, bboxes in clustered_bboxes.items():
+                min_x = min(b[0] for b in bboxes)
+                min_y = min(b[1] for b in bboxes)
+                max_x = max(b[0] + b[2] for b in bboxes)
+                max_y = max(b[1] + b[3] for b in bboxes)
 
-        cluster_bboxes = []
-        for cluster_idx, bboxes in clustered_bboxes.items():
-            min_x = min(b[0] for b in bboxes)
-            min_y = min(b[1] for b in bboxes)
-            max_x = max(b[0] + b[2] for b in bboxes)
-            max_y = max(b[1] + b[3] for b in bboxes)
+                min_x = max(0, min_x - padding)
+                min_y = max(0, min_y - padding)
+                max_x += padding
+                max_y += padding
 
-            min_x = max(0, min_x - padding)
-            min_y = max(0, min_y - padding)
-            max_x += padding
-            max_y += padding
+                cluster_bboxes.append((min_x, min_y, max_x - min_x, max_y - min_y))
 
-            cluster_bboxes.append((min_x, min_y, max_x - min_x, max_y - min_y))
-
-        return cluster_bboxes
-
-    @staticmethod
-    def removeBackground(input_image):
-        rgb_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2RGB)
-        input_array = np.array(rgb_image)
-        output_array = rembg.remove(input_array)
-        output_bgra = cv2.cvtColor(output_array, cv2.COLOR_RGBA2BGRA)
-        return output_bgra
+            return cluster_bboxes
+            
+        except Exception as e:
+            print(f"Clustering failed, returning original bounding boxes: {str(e)}")
+            return bounding_boxes
 
     @staticmethod
     def get_map(original_image, scribble_image):
@@ -85,11 +88,11 @@ class ExtractMaskFromScribbleMap:
             Binary mask
         """
         try:
+            # Get image dimensions first
+            height, width = original_image.shape[:2]
+            
             # Detect bounding boxes from scribble image
             boxes = ExtractMaskFromScribbleMap.detect_shapes_bbox(scribble_image)
-            
-            # Get image dimensions
-            height, width = original_image.shape[:2]
             
             # Initialize mask
             final_mask = np.zeros((height, width), dtype=np.uint8)
@@ -97,10 +100,23 @@ class ExtractMaskFromScribbleMap:
             # Process each bounding box
             for i, bbox in enumerate(boxes):
                 x, y, w, h = bbox
+                # Ensure coordinates are within image bounds
+                x = max(0, min(x, width - 1))
+                y = max(0, min(y, height - 1))
+                w = min(w, width - x)
+                h = min(h, height - y)
+                
+                if w <= 0 or h <= 0:
+                    continue
+                    
                 roi = original_image[y:y+h, x:x+w]
                 
                 # Extract region and remove background
                 extracted_with_alpha = ExtractMaskFromScribbleMap.removeBackground(roi)
+                
+                # Ensure the ROI and mask have the same dimensions
+                if extracted_with_alpha.shape[:2] != (h, w):
+                    extracted_with_alpha = cv2.resize(extracted_with_alpha, (w, h))
                 
                 # Add the alpha channel to the mask
                 final_mask[y:y+h, x:x+w] = np.maximum(
@@ -108,18 +124,15 @@ class ExtractMaskFromScribbleMap:
                     extracted_with_alpha[:, :, 3]
                 )
             
-            tensor_mask = torch.from_numpy(final_mask).float().unsqueeze(0) / 255.0
-            # save_tensor_mask(tensor_mask, 'output_mask.png')
-
-
+            # Convert to tensor
+            tensor_mask = torch.tensor(final_mask, dtype=torch.float32).unsqueeze(0) / 255.0
             
             return tensor_mask
 
         except Exception as e:
             print(f"Error in get_map: {str(e)}")
-            return np.zeros((height, width), dtype=np.uint8)
-
-
+            # Now height and width are defined before they might be used in the error case
+            return torch.zeros((1, height, width), dtype=torch.float32)
 import numpy as np
 import torch
 from PIL import Image
