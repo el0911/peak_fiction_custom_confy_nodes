@@ -27,27 +27,51 @@ class ExtractMaskFromScribbleMap:
                 center = (x + w / 2, y + h / 2)
                 centers.append(center)
 
-        x = np.array(centers)
-        
+        # Handle cases with few centers
         if len(centers) < 2:
             return bounding_boxes
-
-        # KMeans clustering
-        best_score = -1
-        best_k = 2
-        for i in range(2, min(10, len(centers) + 1)):
-            kmeans = KMeans(n_clusters=i, random_state=10)
+            
+        x = np.array(centers)
+        
+        # Modified clustering logic to handle edge cases
+        if len(centers) < 4:  # If we have 2 or 3 centers
+            kmeans = KMeans(n_clusters=2, random_state=10)
             kmeans.fit(x)
-            silhouette_avg = silhouette_score(x, kmeans.labels_)
-            if silhouette_avg > best_score:
-                best_score = silhouette_avg
-                best_k = i
+            labels = kmeans.labels_
+        else:
+            # KMeans clustering with silhouette score
+            best_score = -1
+            best_k = 2
+            best_labels = None
+            
+            # Only try clustering up to the number of points minus 1
+            max_clusters = min(10, len(centers))
+            
+            for i in range(2, max_clusters):
+                kmeans = KMeans(n_clusters=i, random_state=10)
+                labels = kmeans.fit_predict(x)
+                
+                # Only calculate silhouette score if we have enough points
+                if len(np.unique(labels)) > 1:
+                    try:
+                        silhouette_avg = silhouette_score(x, labels)
+                        if silhouette_avg > best_score:
+                            best_score = silhouette_avg
+                            best_k = i
+                            best_labels = labels
+                    except:
+                        continue
+            
+            if best_labels is None:
+                best_k = 2
+                kmeans = KMeans(n_clusters=best_k, random_state=10)
+                labels = kmeans.fit_predict(x)
+            else:
+                labels = best_labels
 
-        kmeans = KMeans(n_clusters=best_k, random_state=10)
-        kmeans.fit(x)
-
-        clustered_bboxes = {i: [] for i in range(best_k)}
-        for idx, label in enumerate(kmeans.labels_):
+        # Group bounding boxes by cluster
+        clustered_bboxes = {i: [] for i in range(len(np.unique(labels)))}
+        for idx, label in enumerate(labels):
             clustered_bboxes[label].append(bounding_boxes[idx])
 
         cluster_bboxes = []
@@ -85,11 +109,11 @@ class ExtractMaskFromScribbleMap:
             Binary mask
         """
         try:
-            # Detect bounding boxes from scribble image
-            boxes = ExtractMaskFromScribbleMap.detect_shapes_bbox(scribble_image)
-            
             # Get image dimensions
             height, width = original_image.shape[:2]
+            
+            # Detect bounding boxes from scribble image
+            boxes = ExtractMaskFromScribbleMap.detect_shapes_bbox(scribble_image)
             
             # Initialize mask
             final_mask = np.zeros((height, width), dtype=np.uint8)
