@@ -132,7 +132,7 @@ class ExtractMaskFromScribbleMap:
                     extracted_with_alpha[:, :, 3]
                 )
             
-            return tensor_mask = torch.from_numpy(final_mask).float().unsqueeze(0) / 255.0
+            return torch.from_numpy(final_mask).float().unsqueeze(0) / 255.0
 
         except Exception as e:
             print(f"Error in get_map: {str(e)}")
