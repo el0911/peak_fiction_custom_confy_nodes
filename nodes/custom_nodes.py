@@ -84,14 +84,15 @@ class Extract_mask_with_scrible_map:
             
             # Assuming 'mask' is the NumPy array you got from the ExtractMaskFromScribbleMap method
             # # Convert the NumPy array to a tensor
-            # mask_tensor = torch.from_numpy(mask)
+            mask_tensor = torch.from_numpy(mask)
 
             # # Reshape to add batch and channel dimensions (if needed)
-            # mask_tensor = mask_tensor.unsqueeze(0).unsqueeze(0)
+            mask_tensor = mask_tensor.unsqueeze(0).unsqueeze(0)
 
             # # Optionally, convert to float type for image processing or neural networks
-            # mask_tensor = mask_tensor.float()
+            mask_tensor = mask_tensor.float()
  
+            print(type(mask_tensor))
 
 
             # Check if mask is returned
@@ -100,7 +101,7 @@ class Extract_mask_with_scrible_map:
             #     return original_image  # Return original image if no mask is found
             
             print("Mask successfully created.")
-            return (mask,)
+            return (mask_tensor,)
         
         except Exception as e:
             # Log the exception details
