@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import rembg
+import torch  # If using PyTorch
 
 class ExtractMaskFromScribbleMap:
     @staticmethod
