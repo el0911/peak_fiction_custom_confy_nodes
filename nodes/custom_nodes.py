@@ -80,6 +80,7 @@ class Extract_mask_with_scrible_map:
             
             # print(type(original_image_))
             print(type(mask))
+            print(mask)
             
             # Assuming 'mask' is the NumPy array you got from the ExtractMaskFromScribbleMap method
             # # Convert the NumPy array to a tensor
