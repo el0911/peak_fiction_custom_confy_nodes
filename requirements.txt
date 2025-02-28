@@ -4,3 +4,4 @@ scikit-learn
 rembg[gpu]
 opencv-python
 matplotlib
+onnxruntime-gpu
