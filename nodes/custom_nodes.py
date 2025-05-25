@@ -114,7 +114,7 @@ class Extract_mask_with_scrible_map:
 
 
 # node to turn a panoram into a cubemap
-class CubemapFromPanorama:
+class Cube_map_From_Panorama:
     """
     A node that converts a panorama image into a cubemap.
     Returns a list of 6 images representing the cubemap faces.
