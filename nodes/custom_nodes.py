@@ -148,10 +148,10 @@ class Cube_map_From_Panorama:
         panorama_images = PanoramaToCubemap.panorama_to_cubemap(panorama_image, cube_size=512)
         print(f" length of images: {len(panorama_images)}")
         return (
-            panorama_images[0],
-            panorama_images[1],
-            panorama_images[2],
-            panorama_images[3],
-            panorama_images[4],
-            panorama_images[5]
+            torch.from_numpy(panorama_images[0]).float().unsqueeze(0) / 255.0,
+            torch.from_numpy(panorama_images[1]).float().unsqueeze(0) / 255.0,  
+            torch.from_numpy(panorama_images[2]).float().unsqueeze(0) / 255.0,
+            torch.from_numpy(panorama_images[3]).float().unsqueeze(0) / 255.0,
+            torch.from_numpy(panorama_images[4]).float().unsqueeze(0) / 255.0,
+            torch.from_numpy(panorama_images[5]).float().unsqueeze(0) / 255.0,
         )

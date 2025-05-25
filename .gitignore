@@ -2,3 +2,6 @@
 ./test_outputs
 ./path
 ./myotherenv
+
+# ignore every png file
+*.png
