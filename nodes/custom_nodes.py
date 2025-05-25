@@ -1,5 +1,5 @@
-from utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
-from utils.panorama_to_cube_map import PanoramaToCubemap
+from ..utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
+from ..utils.panorama_to_cubemap import PanoramaToCubemap
 import numpy as np
 import cv2
 import logging
