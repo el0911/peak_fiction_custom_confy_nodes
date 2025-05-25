@@ -18,12 +18,11 @@ class PanoramaToCubemap:
         #     panorama = cv2.cvtColor(panorama, cv2.COLOR_GRAY2BGR)
 
         # Convert panorama to cubemap using py360convert
-        aspect = res_w / res_h
-        fov_h_deg = 90.0
-        fov_v_deg = 2 * math.degrees(
-            math.atan(math.tan(math.radians(fov_h_deg) / 2) / aspect)
-        )
-        out_hw = (res_h, res_w)  # Use provided resolution for output image size
+        overlap = 0.1  # Overlap percentage for cubemap faces
+        res_w, res_h = 1920, 1080
+        fov_h_deg = 90.0 + (overlap * 90.0)  # Add overlap to horizontal FOV
+        fov_v_deg = 90.0 + (overlap * 90.0)  # Add overlap to vertical FOV
+        out_hw = (res_h, res_w)  # Output image size for each face
         cubemap = []
         angles = [
             (0, 0),  # Front
@@ -33,8 +32,16 @@ class PanoramaToCubemap:
             (0, 90),  # Top
             (0, -90)  # Bottom
         ]
+       
         for u_deg, v_deg in angles:
-            face = py360convert.e2p(panorama, fov_h_deg=fov_h_deg, fov_v_deg=fov_v_deg, u_deg=u_deg, v_deg=v_deg, out_hw=out_hw, mode='bilinear')
+            face = py360convert.e2p(
+                panorama, 
+                fov_deg=(fov_h_deg, fov_v_deg), 
+                u_deg=u_deg, 
+                v_deg=v_deg, 
+                out_hw=out_hw, 
+                mode='bilinear'
+            )
             cubemap.append(face)
         
         # Return cubemap as a list of images
