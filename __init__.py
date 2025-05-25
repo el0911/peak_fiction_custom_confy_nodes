@@ -1,5 +1,5 @@
 from .nodes.custom_nodes import Extract_mask_with_scrible_map
-from .nodes.custom_nodes import CubemapFromPanorama
+from .nodes.custom_nodes import Cube_map_From_Panorama
 
 NODE_CLASS_MAPPINGS = {
     "Extract_mask_with_scrible_map": Extract_mask_with_scrible_map,
