@@ -185,15 +185,24 @@ class NodeTester:
             # Process through node
             logger.info("Converting panorama to cubemap...")
             cubemap_faces = cubemap_node.convert_to_cubemap(panorama_img)
+            # convert rurple to a list
+            new_cubemap_faces = []
+           
+            # if not isinstance(cubemap_faces, list) or len(cubemap_faces) != 6:
+            #     raise ValueError("Cubemap conversion did not return 6 faces")
             
-            print(cubemap_faces)
-            if not isinstance(cubemap_faces, list) or len(cubemap_faces) != 6:
-                raise ValueError("Cubemap conversion did not return 6 faces")
-            
+            # array of pytorvh tesnors
             # Save each face of the cubemap
-            for i, face in enumerate(cubemap_faces):
+            for i, face in enumerate(list(cubemap_faces)):
                 face_name = f"cubemap_face_{i+1}"
-                self.save_output(face, face_name, suffix="cubemap")
+                # save pytorch tensor
+                print(face)
+                print(type(face))
+                # type is a tensor
+                # save tensor image
+                self.save_mask(face, face_name)
+
+                # self.save_mask(face, face_name)
                 
         except Exception as e:
             logger.error(f"Error during cubemap conversion test: {str(e)}")
