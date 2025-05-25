@@ -1,4 +1,5 @@
-from ..utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
+from utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
+from utils.panorama_to_cubemap import PanoramaToCubemap
 import numpy as np
 import cv2
 import logging
@@ -110,3 +111,39 @@ class Extract_mask_with_scrible_map:
             logging.error(f"An error occurred while processing images: {str(e)}")
             # In case of an error, return the original image
             return (original_image,)
+
+
+# node to turn a panoram into a cubemap
+class CubemapFromPanorama:
+    """
+    A node that converts a panorama image into a cubemap.
+    Returns a list of 6 images representing the cubemap faces.
+    """
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "panorama_image": ("IMAGE",),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE")
+    FUNCTION = "convert_to_cubemap"
+    CATEGORY = "peakfiction/custom"
+
+    def convert_to_cubemap(self, panorama_image):
+        # Placeholder for actual cubemap conversion logic
+        # For now, just returning the input image six times
+        panorama_images = PanoramaToCubemap.panorama_to_cubemap(panorama_image, cube_size=512)
+        
+        return (
+            panorama_images[0],
+            panorama_images[1],
+            panorama_images[2],
+            panorama_images[3],
+            panorama_images[4],
+            panorama_images[5]
+        )

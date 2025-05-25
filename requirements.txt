@@ -4,3 +4,4 @@ scikit-learn
 rembg
 opencv-python
 matplotlib
+py360convert
