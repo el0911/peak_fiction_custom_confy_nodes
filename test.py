@@ -6,8 +6,8 @@ import numpy as np
 from pathlib import Path
 import logging
 from datetime import datetime
-from utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
 from nodes.custom_nodes import Extract_mask_with_scrible_map
+from nodes.custom_nodes import Cube_map_From_Panorama
 
 # Set up logging
 logging.basicConfig(
@@ -112,60 +112,91 @@ class NodeTester:
 
     def run_tests(self):
         """Run tests on all image pairs in the test assets directory."""
+        # try:
+        #     # Get all image files
+        #     image_files = list(self.test_assets_dir.glob("*.png")) + \
+        #                  list(self.test_assets_dir.glob("*.jpg")) + \
+        #                  list(self.test_assets_dir.glob("*.jpeg"))
+            
+        #     logger.info(f"Found {len(image_files)} images in test assets directory")
+            
+        #     # Group images by base name (assuming pairs are named similarly)
+        #     image_pairs = {}
+        #     for img_path in image_files:
+        #         base_name = img_path.stem.split('_')[0]  # Assuming names like "base_original.png" and "base_scribble.png"
+        #         if base_name not in image_pairs:
+        #             image_pairs[base_name] = []
+        #         image_pairs[base_name].append(img_path)
+            
+        #     # Create node instance
+        #     node = Extract_mask_with_scrible_map()
+            
+        #     # Process each pair
+        #     for base_name, paths in image_pairs.items():
+        #         if len(paths) != 2:
+        #             logger.warning(f"Skipping {base_name}: Expected 2 images, found {len(paths)}")
+        #             continue
+                
+        #         logger.info(f"\nTesting image pair: {base_name}")
+                
+        #         try:
+        #             # Load images
+        #             original_img = self.load_image(paths[0])
+        #             scribble_img = self.load_image(paths[1])
+                    
+        #             # Process through node
+        #             logger.info("Processing images through node...")
+        #             mask_tuple = node.get_map(original_img, scribble_img)
+                    
+        #             if not isinstance(mask_tuple, tuple):
+        #                 raise ValueError("Node output should be a tuple")
+                    
+        #             mask = mask_tuple[0]
+                    
+        #             # Validate output
+        #             if True:
+        #                 logger.info("Mask validation passed")
+        #                 self.save_mask(mask, base_name)
+        #             else:
+        #                 logger.error("Mask validation failed")
+                    
+        #         except Exception as e:
+        #             logger.error(f"Error processing {base_name}: {str(e)}")
+        #             continue
+                
+        # except Exception as e:
+        #     logger.error(f"Test execution failed: {str(e)}")
+
+        # run cubemap conversion test   
         try:
-            # Get all image files
-            image_files = list(self.test_assets_dir.glob("*.png")) + \
-                         list(self.test_assets_dir.glob("*.jpg")) + \
-                         list(self.test_assets_dir.glob("*.jpeg"))
+            panorama_path = self.test_assets_dir / "panorama_equirectangular.png"  # Example panorama image
+            if not panorama_path.exists():
+                logger.error(f"Panorama image not found: {panorama_path}")
+                return
             
-            logger.info(f"Found {len(image_files)} images in test assets directory")
+            logger.info(f"\nTesting panorama to cubemap conversion with {panorama_path.name}")
             
-            # Group images by base name (assuming pairs are named similarly)
-            image_pairs = {}
-            for img_path in image_files:
-                base_name = img_path.stem.split('_')[0]  # Assuming names like "base_original.png" and "base_scribble.png"
-                if base_name not in image_pairs:
-                    image_pairs[base_name] = []
-                image_pairs[base_name].append(img_path)
+            # Load panorama image
+            panorama_img = self.load_image(panorama_path)
             
-            # Create node instance
-            node = Extract_mask_with_scrible_map()
+            # Create node instance for cubemap conversion
+            cubemap_node = Cube_map_From_Panorama()
             
-            # Process each pair
-            for base_name, paths in image_pairs.items():
-                if len(paths) != 2:
-                    logger.warning(f"Skipping {base_name}: Expected 2 images, found {len(paths)}")
-                    continue
-                
-                logger.info(f"\nTesting image pair: {base_name}")
-                
-                try:
-                    # Load images
-                    original_img = self.load_image(paths[0])
-                    scribble_img = self.load_image(paths[1])
-                    
-                    # Process through node
-                    logger.info("Processing images through node...")
-                    mask_tuple = node.get_map(original_img, scribble_img)
-                    
-                    if not isinstance(mask_tuple, tuple):
-                        raise ValueError("Node output should be a tuple")
-                    
-                    mask = mask_tuple[0]
-                    
-                    # Validate output
-                    if True:
-                        logger.info("Mask validation passed")
-                        self.save_mask(mask, base_name)
-                    else:
-                        logger.error("Mask validation failed")
-                    
-                except Exception as e:
-                    logger.error(f"Error processing {base_name}: {str(e)}")
-                    continue
+            # Process through node
+            logger.info("Converting panorama to cubemap...")
+            cubemap_faces = cubemap_node.convert_to_cubemap(panorama_img)
+            
+            print(cubemap_faces)
+            if not isinstance(cubemap_faces, list) or len(cubemap_faces) != 6:
+                raise ValueError("Cubemap conversion did not return 6 faces")
+            
+            # Save each face of the cubemap
+            for i, face in enumerate(cubemap_faces):
+                face_name = f"cubemap_face_{i+1}"
+                self.save_output(face, face_name, suffix="cubemap")
                 
         except Exception as e:
-            logger.error(f"Test execution failed: {str(e)}")
+            logger.error(f"Error during cubemap conversion test: {str(e)}")
 
 def main():
     """Main function to run tests."""

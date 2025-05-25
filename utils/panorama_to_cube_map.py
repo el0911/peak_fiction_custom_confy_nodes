@@ -13,13 +13,13 @@ class PanoramaToCubemap:
         Returns:
             A list of images representing the six faces of the cubemap.
         """
-        # Ensure the panorama is in RGB format
-        if len(panorama.shape) == 2 or panorama.shape[2] == 1:
-            panorama = cv2.cvtColor(panorama, cv2.COLOR_GRAY2BGR)
+        # # Ensure the panorama is in RGB format
+        # if len(panorama.shape) == 2 or panorama.shape[2] == 1:
+        #     panorama = cv2.cvtColor(panorama, cv2.COLOR_GRAY2BGR)
 
         # Convert panorama to cubemap using py360convert
-        cubemap = py360convert.e2c(panorama,face_w=cube_size, mode='bilinear',cube_format='dice')
-
+        cubemap = py360convert.e2c(panorama,face_w=cube_size, mode='bilinear',cube_format='list')
+        
         # return cubemap as a list of images
         
         return cubemap

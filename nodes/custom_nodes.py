@@ -137,8 +137,16 @@ class Cube_map_From_Panorama:
     def convert_to_cubemap(self, panorama_image):
         # Placeholder for actual cubemap conversion logic
         # For now, just returning the input image six times
-        panorama_images = PanoramaToCubemap.panorama_to_cubemap(panorama_image, cube_size=512)
+        #  make sure input is NDArray: Numpy array with shape [H, W, C].
         
+        if not isinstance(panorama_image, np.ndarray):
+            panorama_image = np.clip(
+                255.0 * panorama_image.cpu().numpy().squeeze(), 0, 255
+            ).astype(np.uint8)
+
+        
+        panorama_images = PanoramaToCubemap.panorama_to_cubemap(panorama_image, cube_size=512)
+        print(f" length of images: {len(panorama_images)}")
         return (
             panorama_images[0],
             panorama_images[1],
