@@ -5,3 +5,4 @@
 
 # ignore every png file
 *.png
+*.log
