@@ -18,7 +18,7 @@ class PanoramaToCubemap:
         #     panorama = cv2.cvtColor(panorama, cv2.COLOR_GRAY2BGR)
 
         # Convert panorama to cubemap using py360convert
-        fov_deg = (90, 50)  # Adjusted field of view for 16:9 aspect ratio
+        fov_deg = (90, 60)  # Adjusted field of view for 16:9 aspect ratio
         out_hw = (int(cube_size * 9 / 16), cube_size)  # Corrected output image size for 16:9 aspect ratio
         cubemap = []
         angles = [
