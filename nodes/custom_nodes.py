@@ -3,6 +3,7 @@ from ..utils.panorama_to_cube_map import PanoramaToCubemap
 import numpy as np
 import cv2
 import logging
+import os
 import torch  # If using PyTorch
 # import tensorflow as tf  # Uncomment if using TensorFlow
 
@@ -155,3 +156,37 @@ class Cube_map_From_Panorama:
             torch.from_numpy(panorama_images[4]).float().unsqueeze(0) / 255.0,
             torch.from_numpy(panorama_images[5]).float().unsqueeze(0) / 255.0,
         )
+
+    
+# class to load a model from memory must be in the models/vggt folder loads all models in specified folder load a list of files from a folder and show it as options to the user its a select option as input not string
+class Load_model_from_memory:
+    """
+    A node that loads a model from memory.
+    Returns the loaded model.
+    """
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        # load all files in the models/vggt folder and show them as options
+        model_folder = "models/vggt"
+        # needs to load form project directory
+        path = os.path.dirname(os.path.abspath(__file__))
+        model_folder = os.path.join(path, model_folder)
+        model_files = [f for f in os.listdir(model_folder) if f.endswith('.pt') or f.endswith('.pth')]
+        return {
+            "required": {
+                "model_name": (model_files,),
+            },
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_model"
+    CATEGORY = "peakfiction/custom"
+
+    def load_model(self, model_name):
+        # Placeholder for actual model loading logic
+        # For now, just returning a dummy model
+        print(f"Loading model: {model_name}")
+        return (torch.nn.Module(),)  # Replace with actual model loading logic
