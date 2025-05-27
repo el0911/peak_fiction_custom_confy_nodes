@@ -170,10 +170,10 @@ class Load_model_from_memory:
     @classmethod
     def INPUT_TYPES(cls):
         # load all files in the models/vggt folder and show them as options
-        model_folder = "models/vggt"
-        # needs to load form project directory
-        path = os.path.dirname(os.path.abspath(__file__))
-        model_folder = os.path.join(path, model_folder)
+        model_folder = os.path.join(os.path.dirname(__file__), "../../models/vggt")
+        # Create the directory if it does not exist
+        if not os.path.exists(model_folder):
+            os.makedirs(model_folder)
         model_files = [f for f in os.listdir(model_folder) if f.endswith('.pt') or f.endswith('.pth')]
         return {
             "required": {
