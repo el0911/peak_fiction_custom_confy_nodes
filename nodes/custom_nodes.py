@@ -6,10 +6,9 @@ import logging
 import sys
 
 import os
-from vggt.models.vggt import VGGT
+from ..vggt.models.vggt import VGGT
 import torch  # If using PyTorch
 # import tensorflow as tf  # Uncomment if using TensorFlow
-sys.path.append("vggt/")
 
 def tensor_to_numpy(tensor):
     # Convert the tensor to a numpy array
