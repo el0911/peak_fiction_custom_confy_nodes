@@ -6,7 +6,7 @@ import logging
 import sys
 
 import os
-import VGGT
+from vggt.models.vggt import VGGT
 import torch  # If using PyTorch
 # import tensorflow as tf  # Uncomment if using TensorFlow
 sys.path.append("vggt/")
