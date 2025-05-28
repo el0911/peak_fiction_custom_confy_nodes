@@ -3,11 +3,13 @@ from ..utils.panorama_to_cube_map import PanoramaToCubemap
 import numpy as np
 import cv2
 import logging
-sys.path.append("vggt/")
+import sys
+
 import os
 import VGGT
 import torch  # If using PyTorch
 # import tensorflow as tf  # Uncomment if using TensorFlow
+sys.path.append("vggt/")
 
 def tensor_to_numpy(tensor):
     # Convert the tensor to a numpy array
