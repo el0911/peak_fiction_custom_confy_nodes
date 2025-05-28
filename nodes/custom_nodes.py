@@ -221,7 +221,7 @@ class Load_model_from_memory:
 
         print(f"Loading model: {model_name}")
         return (model,)  # Replace with actual model loading logic
-        class Generate_point_cloud_or_glb:
+class Generate_point_cloud_or_glb:
             """
             A node that uses a loaded model to process a batch of images and generates a point cloud or GLB file.
             """
