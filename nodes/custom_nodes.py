@@ -234,10 +234,10 @@ class Generate_point_cloud_or_glb:
                     "required": {
                         "model": ("MODEL",),
                         "images": ("IMAGE",),
-                        "show_cam": ("BOOL",),
-                        "mask_sky": ("BOOL",),
+                        "show_cam":  ([True, False]),
+                        "mask_sky":  ([True, False]),
                         "conf_thres": ("FLOAT",),
-                        "prediction_mode": ("STRING", {"options": ["Depthmap", "Pointmap Regression"]}),
+                        "prediction_mode": (["Depthmap", "Pointmap Regression"]),
                     },
                 }
 
