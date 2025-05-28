@@ -3,7 +3,9 @@ from ..utils.panorama_to_cube_map import PanoramaToCubemap
 import numpy as np
 import cv2
 import logging
+sys.path.append("vggt/")
 import os
+import VGGT
 import torch  # If using PyTorch
 # import tensorflow as tf  # Uncomment if using TensorFlow
 
@@ -188,5 +190,26 @@ class Load_model_from_memory:
     def load_model(self, model_name):
         # Placeholder for actual model loading logic
         # For now, just returning a dummy model
+        try:
+            model_path = model_folder = os.path.join(os.path.dirname(__file__), "../../models/vggt")
+            model_path = model_folder = os.path.join(model_path,model_name)
+            state_dict = torch.load(model_path)
+
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+
+            model = VGGT()
+            model.load_state_dict(state_dict)
+            model.eval()
+            model = model.to(device)
+
+            if not torch.cuda.is_available():
+                raise ValueError("CUDA is not available. Check your environment.")
+
+        except Exception as e:
+            raise RuntimeError(f"Failed to load model from {model_path}: {e}")
+
+
+
+
         print(f"Loading model: {model_name}")
-        return (torch.nn.Module(),)  # Replace with actual model loading logic
+        return (model,)  # Replace with actual model loading logic
