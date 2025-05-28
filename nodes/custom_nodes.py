@@ -241,7 +241,7 @@ class Generate_point_cloud_or_glb:
                     },
                 }
 
-            RETURN_TYPES = ("POINT_CLOUD_DATA", "GLB_FILE")
+            RETURN_TYPES = ("STRING",)
             FUNCTION = "generate_output"
             CATEGORY = "peakfiction/custom"
 
@@ -316,7 +316,7 @@ class Generate_point_cloud_or_glb:
                             glb_file.write(glb_data)
                         
                         print(f"GLB file successfully saved at: {file_path}")
-                        return point_cloud_data, file_path
+                        return (file_path,)
                     except Exception as e:
                         logging.error(f"Failed to save GLB file: {str(e)}")
                         raise RuntimeError("Error occurred while saving GLB file.")
