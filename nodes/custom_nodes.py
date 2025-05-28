@@ -234,11 +234,10 @@ class Generate_point_cloud_or_glb:
                     "required": {
                         "model": ("MODEL",),
                         "images": ("IMAGE",),
-                        "show_cam":  ("BOOL", {"options": [True, False]}),
-                        "mask_sky":  ("BOOL", {"options": [True, False]}),
+                        "show_cam":  ([True, False],),
+                        "mask_sky":  ([True, False],),
                         "conf_thres": ("FLOAT",),
-                        "prediction_mode": ("STRING", {"options": ["Depthmap", "Pointmap Regression"]}),
-                        "model_name_test": (["Depthmap", "Pointmap Regression"],),
+                        "prediction_mode": (["Depthmap", "Pointmap Regression"],),
                     },
                 }
 
@@ -246,7 +245,7 @@ class Generate_point_cloud_or_glb:
             FUNCTION = "generate_output"
             CATEGORY = "peakfiction/custom"
 
-            def generate_output(self, model, images, show_cam, mask_sky, conf_thres, prediction_mode,model_name_test):
+            def generate_output(self, model, images, show_cam, mask_sky, conf_thres, prediction_mode):
                 try:
                     # Ensure images are in the correct format
                     if not isinstance(images, torch.Tensor):
