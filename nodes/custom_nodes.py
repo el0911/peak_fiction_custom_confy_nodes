@@ -1,6 +1,6 @@
 from ..utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
 from ..utils.panorama_to_cube_map import PanoramaToCubemap
-from ...utils.visual_utils import predictions_to_glb
+from ..utils.visual_utils import predictions_to_glb
 
 import numpy as np
 import cv2
