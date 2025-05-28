@@ -1,12 +1,19 @@
 from ..utils.extract_mask_with_scrible_map import ExtractMaskFromScribbleMap
 from ..utils.panorama_to_cube_map import PanoramaToCubemap
+from ...utils.visual_utils import predictions_to_glb
+
 import numpy as np
 import cv2
 import logging
 import sys
-
+from PIL import Image
 import os
 from ..vggt.models.vggt import VGGT
+from ..vggt.utils.load_fn import load_and_preprocess_images
+from ..vggt.utils.pose_enc import pose_encoding_to_extri_intri
+from ..vggt.utils.geometry import unproject_depth_map_to_point_map
+
+
 import torch  # If using PyTorch
 # import tensorflow as tf  # Uncomment if using TensorFlow
 
@@ -214,3 +221,132 @@ class Load_model_from_memory:
 
         print(f"Loading model: {model_name}")
         return (model,)  # Replace with actual model loading logic
+        class Generate_point_cloud_or_glb:
+            """
+            A node that uses a loaded model to process a batch of images and generates a point cloud or GLB file.
+            """
+            def __init__(self):
+                pass
+
+            @classmethod
+            def INPUT_TYPES(cls):
+                return {
+                    "required": {
+                        "model": ("MODEL",),
+                        "images": ("IMAGE",),
+                        "show_cam": ("BOOL",),
+                        "mask_sky": ("BOOL",),
+                        "conf_thres": ("FLOAT",),
+                        "prediction_mode": ("STRING", {"options": ["Depthmap", "Pointmap Regression"]}),
+                    },
+                }
+
+            RETURN_TYPES = ("POINT_CLOUD_DATA", "GLB_FILE")
+            FUNCTION = "generate_output"
+            CATEGORY = "peakfiction/custom"
+
+            def generate_output(self, model, images, show_cam, mask_sky, conf_thres, prediction_mode):
+                try:
+                    # Ensure images are in the correct format
+                    if not isinstance(images, torch.Tensor):
+                        images = torch.from_numpy(images).float().unsqueeze(0) / 255.0
+
+                    device = "cuda" if torch.cuda.is_available() else "cpu"
+                    model = model.to(device)
+
+                    # Ensure images are provided
+                    if len(images) == 0:
+                        raise ValueError('Error: No images provided for processing.')
+
+                    # Convert images to PIL format
+                    images = [Image.fromarray(image.astype(np.uint8)) if isinstance(image, np.ndarray) else image for image in images]
+
+                    # Preprocess images for the model
+                    images_formatted = load_and_preprocess_images(images)
+                    print(f"Preprocessed images shape: {images_formatted.shape}")
+
+                    # Run inference
+                    print("Running inference...")
+                    dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
+
+                    with torch.no_grad():
+                        with torch.cuda.amp.autocast(dtype=dtype):
+                            predictions = model(images)
+
+                    # Convert pose encoding to extrinsic and intrinsic matrices
+                    print("Converting pose encoding to extrinsic and intrinsic matrices...")
+                    extrinsic, intrinsic = pose_encoding_to_extri_intri(predictions["pose_enc"], images.shape[-2:])
+                    predictions["extrinsic"] = extrinsic
+                    predictions["intrinsic"] = intrinsic
+
+                    # Convert tensors to numpy
+                    for key in predictions.keys():
+                        if isinstance(predictions[key], torch.Tensor):
+                            predictions[key] = predictions[key].cpu().numpy().squeeze(0)  # remove batch dimension
+
+                    # Generate world points from depth map
+                    print("Computing world points from depth map...")
+                    depth_map = predictions["depth"]  # (S, H, W, 1)
+                    world_points = unproject_depth_map_to_point_map(depth_map, predictions["extrinsic"], predictions["intrinsic"])
+                    predictions["world_points_from_depth"] = world_points
+
+                    # Clean space
+                    torch.cuda.empty_cache()
+
+                    # Generate point cloud
+                    point_cloud_data = self._generate_point_cloud(predictions, show_cam, mask_sky, conf_thres, prediction_mode)
+
+                    # Create a GLB file
+                    folder_path = os.path.join(os.path.dirname(__file__), "../../temp/glbs")
+                    # Create the directory if it does not exist
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    
+                    # Generate a random file name
+                    file_name = f"output_{np.random.randint(1000, 9999)}.glb"
+                    file_path = os.path.join(folder_path, file_name)
+                    
+                    # Placeholder logic for saving GLB file
+                    try:
+                        # Assuming `predictions` contains the necessary data for GLB generation
+                        glb_data = self._generate_glb_file(predictions)
+                        
+                        # Save the GLB data to the file
+                        with open(file_path, "wb") as glb_file:
+                            glb_file.write(glb_data)
+                        
+                        print(f"GLB file successfully saved at: {file_path}")
+                        return point_cloud_data, file_path
+                    except Exception as e:
+                        logging.error(f"Failed to save GLB file: {str(e)}")
+                        raise RuntimeError("Error occurred while saving GLB file.")
+
+                except Exception as e:
+                    logging.error(f"An error occurred while generating output: {str(e)}")
+                    raise RuntimeError("Failed to generate point cloud or GLB file.")
+
+            def _generate_point_cloud(self, predictions, show_cam, mask_sky, conf_thres, prediction_mode):
+                # Convert predictions to GLB
+                # prediction mode is either Depthmap or Pointmap Regression
+                target_dir = os.path.join(os.path.dirname(__file__), "../../temp/point_clouds")
+                if not os.path.exists(target_dir):
+                    os.makedirs(target_dir)
+                glbscene = predictions_to_glb(
+                    predictions,
+                    conf_thres=conf_thres,
+                    filter_by_frames="All",
+                    mask_black_bg=False,
+                    mask_white_bg=False,
+                    show_cam=show_cam,
+                    mask_sky=mask_sky,
+                    target_dir=target_dir,
+                    prediction_mode=prediction_mode,
+                )
+                glbfile = os.path.join(target_dir, f"point_cloud_scene{np.random.randint(0,10000000)}.glb")
+                glbscene.export(file_obj=glbfile)
+                return "POINT_CLOUD_DATA"
+
+            def _generate_glb_file(self, output):
+                # Placeholder for GLB file generation logic
+                # Replace with actual implementation
+                return "GLB_FILE_DATA"

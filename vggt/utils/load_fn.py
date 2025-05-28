@@ -9,13 +9,13 @@ from PIL import Image
 from torchvision import transforms as TF
 
 
-def load_and_preprocess_images(image_path_list, mode="crop"):
+def load_and_preprocess_images(pil_images, mode="crop"):
     """
     A quick start function to load and preprocess images for model input.
     This assumes the images should have the same shape for easier batching, but our model can also work well with different shapes.
 
     Args:
-        image_path_list (list): List of paths to image files
+        pil_images (list): List of pil images
         mode (str, optional): Preprocessing mode, either "crop" or "pad".
                              - "crop" (default): Sets width to 518px and center crops height if needed.
                              - "pad": Preserves all pixels by making the largest dimension 518px
@@ -50,10 +50,7 @@ def load_and_preprocess_images(image_path_list, mode="crop"):
     target_size = 518
 
     # First process all images and collect their shapes
-    for image_path in image_path_list:
-
-        # Open image
-        img = Image.open(image_path)
+    for img in pil_images:
 
         # If there's an alpha channel, blend onto white background:
         if img.mode == "RGBA":
